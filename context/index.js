@@ -1,16 +1,28 @@
-import { createContext, useState } from "react";
+import { data } from "autoprefixer";
+import { createContext, useEffect, useState } from "react";
 
 const DataContext = createContext();
 const DataContextProvider = (props) => {
   const [isPopUpOpen, setIsPopUpOpen] = useState(false);
   const [bannedUser, setBannedUser] = useState(null);
   const [topUsers, setTopUsers] = useState(null);
+  const [searchedUser, setSearchedUser] = useState();
 
   const openPopUp = () => setIsPopUpOpen(true);
   const closePopUp = () => setIsPopUpOpen(false);
+  const bannedUserTimer = 60000; // for 1 min ban,can be changed to 300000 to keep the user banned for 5 min's
 
-  const setIntialUserValue = () =>
-    setBannedUser(JSON.parse(localStorage.getItem("bannedUser")));
+  const setIntialUserValue = () => {
+    const data = JSON.parse(localStorage.getItem("bannedUser"));
+    if (data?.length > 0) {
+      let temp = [];
+      data.forEach((ele) => {
+        if (Date.now() - ele.time < bannedUserTimer) temp.push(ele);
+      });
+      setBannedUser(temp);
+      localStorage.setItem("bannedUser", JSON.stringify(temp));
+    }
+  };
 
   const setIntialTopUsers = () =>
     setTopUsers(JSON.parse(localStorage.getItem("topUsers")));
@@ -22,7 +34,6 @@ const DataContextProvider = (props) => {
       for (const user of storedUsers) {
         if (user.id !== id) temp.push(user);
       }
-      console.log("here", temp);
       localStorage.setItem("bannedUser", JSON.stringify(temp));
       setBannedUser(temp);
     }
@@ -86,6 +97,29 @@ const DataContextProvider = (props) => {
     return data;
   };
 
+  const searchUserByNameOrEmail = async (val) => {
+    setSearchedUser(null);
+    const temp = await fetch("https://jsonplaceholder.typicode.com/users"); //can also be fetched before hand and we can use stored one
+    //but to enhance the independence of search function this fetch is done
+    const userData = await temp.json();
+    const searchAble = val.split(" ");
+    searchAble.forEach((ele) => {
+      const splitName = ele.replace("\t", "");
+      userData.forEach((data) => {
+        data.name.split(" ").forEach((name) => {
+          if (splitName.toLowerCase() === name.toLowerCase()) {
+            setSearchedUser(data);
+            return;
+          }
+        });
+        //email search if name search fails
+        if (splitName.toLowerCase() === data.email.toLowerCase()) {
+          setSearchedUser(data);
+        }
+      });
+    });
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -102,6 +136,8 @@ const DataContextProvider = (props) => {
         topUsers,
         removeTopUser,
         addTopUser,
+        searchedUser,
+        searchUserByNameOrEmail,
       }}
     >
       {props.children}

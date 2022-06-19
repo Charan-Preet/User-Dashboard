@@ -1,5 +1,6 @@
 import { useEffect, useContext, useState } from "react";
 import TopUser from "./Top-users";
+import Search from "./Search";
 import DataContext from "../../context";
 
 export default function Users(data) {
@@ -21,6 +22,7 @@ export default function Users(data) {
     setIntialUserValue();
     setIntialTopUsers();
 
+    //handeling click through event-deligation
     document.querySelector(".app-table")?.addEventListener("click", (e) => {
       if (e.target.matches(".remove-button"))
         banUser(e.target.attributes.id.value);
@@ -47,12 +49,13 @@ export default function Users(data) {
 
   const listItems = data.data?.map((ele) => (
     <tbody
-      className={bannedUserCollection?.includes(ele.id) && "strike"}
+      className={bannedUserCollection?.includes(ele.id) ? "strike" : ""}
       key={ele.id}
     >
       <tr>
         <td>
           <input
+            className="pointer"
             type="checkbox"
             id={ele.id}
             disabled={bannedUserCollection?.includes(ele.id)}
@@ -66,7 +69,7 @@ export default function Users(data) {
             id={ele.id}
             disabled={!bannedUserCollection?.includes(ele.id)}
             className={`f6 link dim ba bw1 ph3 pv2 mb2 dib dark-gray grow pointer bg-white grow br2 add-button ${
-              !bannedUserCollection?.includes(ele.id) && "disable-element"
+              !bannedUserCollection?.includes(ele.id) ? "disable-element" : ""
             }`}
           >
             Allow
@@ -77,7 +80,7 @@ export default function Users(data) {
             disabled={bannedUserCollection?.includes(ele.id)}
             id={ele.id}
             className={`f6 br2 link ph3 pv2 mb2 dib white bg-hot-pink pointer grow shadow-1 remove-button ${
-              bannedUserCollection?.includes(ele.id) && "disable-element"
+              bannedUserCollection?.includes(ele.id) ? "disable-element" : ""
             }`}
           >
             Remove
@@ -90,6 +93,9 @@ export default function Users(data) {
   return (
     <>
       <h1 className="f4 lh-copy tc bg-light-gray">User Dashboard...</h1>
+      <div className="flex justify-center items-center mb4">
+        <Search />
+      </div>
       <div className="flex flex-wrap justify-around">
         <div className="app-table">
           <h1 className="tc underline">Users</h1>

@@ -1,3 +1,8 @@
+button {
+  all: unset;
+  cursor: pointer;
+}
+
 td,
 th {
   padding: 1.5rem;
@@ -20,5 +25,5 @@ tr {
 
 .disable-element {
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.5 !important;
 }
